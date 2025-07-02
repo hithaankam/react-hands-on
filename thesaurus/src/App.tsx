@@ -2,18 +2,20 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-type Synonym ={
-  word:string;
-  score:number;
-};
+
+import { useGetSynonyms } from './hooks/useGetSynonyms'
+
 function App() {
-  const [word, setWord] = useState<string>();
-  const [synonyms, setSynonyms] = useState<Synonym[]>([]);
+  const [word, setWord] = useState<string>('');
+  const {isLoading, synonyms, getSynonyms} = useGetSynonyms();
+
   const handleFetchSynonyms = (e: React.FormEvent) => {
     e.preventDefault();
-    fetch(`https://api.datamuse.com/words?rel_syn=${word} `)
-    .then(response => response.json())
-    .then(setSynonyms);
+    getSynonyms(word);
+  }
+  const handleSynonymClicked = (newWord: string) => {
+    setWord(newWord)
+    getSynonyms(newWord);
   }
    return (
     <div className ="App">
@@ -25,7 +27,10 @@ function App() {
     id = "word-input"></input>
     <button>Submit</button>
   </form>
-  <ul>{synonyms.map((synonym) => <li key = {synonym.word}>
+  {isLoading ? <div>Loading...</div> : null}
+  <ul>{synonyms.map((synonym) => <li 
+  onClick={() => handleSynonymClicked(synonym.word)}
+  key = {synonym.word}>
     {synonym.word}
   </li>)}
   </ul>
